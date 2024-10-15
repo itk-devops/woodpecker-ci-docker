@@ -9,12 +9,12 @@
   # - CI_REPO_OWNER : GitHub org
   # - CI_REPO_NAME : Repository
   # - CI_COMMIT_TAG: Git tag
-  # - SERVER_COMPOSE_DOMAIN: Domain for the application
+  # - COMPOSE_SERVER_DOMAIN: Domain for the application
 
   tasks:
     - name: Set Install Path
       ansible.builtin.set_fact:
-        server_install_path: "{{ REMOTE_BASE_PATH }}/{{ SERVER_COMPOSE_DOMAIN | replace('.', '_') }}"
+        server_install_path: "{{ REMOTE_BASE_PATH }}/{{ COMPOSE_SERVER_DOMAIN | replace('.', '_') }}"
         github_tar_url: "https://github.com/{{ CI_REPO_OWNER }}/{{ CI_REPO_NAME }}/releases/download/{{ CI_COMMIT_TAG}}/{{ CI_REPO_NAME }}-{{ CI_COMMIT_TAG }}.tar.gz"
         github_checksum_url: "https://github.com/{{ CI_REPO_OWNER }}/{{ CI_REPO_NAME }}/releases/download/{{ CI_COMMIT_TAG}}/checksum.txt"
 
