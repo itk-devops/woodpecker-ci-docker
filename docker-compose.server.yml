@@ -26,20 +26,13 @@ services:
       labels:
         - traefik.enable=true
         - traefik.docker.network=frontend
-
         - traefik.http.services.woodpecker-service.loadbalancer.server.port=8000
-
-        - traefik.http.routers.woodpecker-secure.rule=Host(`${COMPOSE_SERVER_DOMAIN}`)
-        - traefik.http.routers.woodpecker-secure.entrypoints=websecure
-        - traefik.http.routers.woodpecker-secure.service=woodpecker-service
-
-        - traefik.http.routers.woodpecker.rule=Host(`${COMPOSE_SERVER_DOMAIN}`)
-        - traefik.http.routers.woodpecker.entrypoints=web
-        - traefik.http.routers.woodpecker.service=woodpecker-service
-
-        - traefik.http.middlewares.woodpecker-redirect.redirectscheme.scheme=https
-        - traefik.http.middlewares.woodpecker-redirect.redirectscheme.permanent=true
-        - traefik.http.routers.woodpecker.middlewares=woodpecker-redirect@docker
+        - traefik.http.routers.${COMPOSE_PROJECT_NAME}-http.rule=Host(`${COMPOSE_SERVER_DOMAIN}`)
+        - traefik.http.routers.${COMPOSE_PROJECT_NAME}-http.entrypoints=web
+        - traefik.http.routers.${COMPOSE_PROJECT_NAME}-http.middlewares=redirect-to-https
+        - traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
+        - traefik.http.routers.${COMPOSE_PROJECT_NAME}.rule=Host(`${COMPOSE_SERVER_DOMAIN}`)
+        - traefik.http.routers.${COMPOSE_PROJECT_NAME}.entrypoints=websecure
 
   woodpecker-agent-1: &woodpecker-agent-definition
     image: woodpeckerci/woodpecker-agent:latest
