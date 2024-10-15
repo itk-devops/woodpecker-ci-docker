@@ -30,8 +30,6 @@ services:
         - traefik.http.services.woodpecker-service.loadbalancer.server.port=8000
 
         - traefik.http.routers.woodpecker-secure.rule=Host(`${COMPOSE_SERVER_DOMAIN}`)
-        - traefik.http.routers.woodpecker-secure.tls=true
-        - traefik.http.routers.woodpecker-secure.tls.certresolver=letsencrypt
         - traefik.http.routers.woodpecker-secure.entrypoints=websecure
         - traefik.http.routers.woodpecker-secure.service=woodpecker-service
 
