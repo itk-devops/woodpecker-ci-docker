@@ -17,7 +17,7 @@ services:
       - woodpecker-server-data:/var/lib/woodpecker/
     environment:
       - WOODPECKER_HOST=${WOODPECKER_HOST}
-      - WOODPECKER_OPEN=open
+      - WOODPECKER_OPEN=true
       - WOODPECKER_ORGS=${WOODPECKER_ORGS}
       - WOODPECKER_ADMIN=${WOODPECKER_ADMIN}
       - WOODPECKER_GITHUB=true

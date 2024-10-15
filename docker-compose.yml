@@ -26,8 +26,10 @@ services:
     volumes:
       - woodpecker-server-data:/var/lib/woodpecker/
     environment:
-      - WOODPECKER_OPEN=false
       - WOODPECKER_HOST=${WOODPECKER_HOST}
+      - WOODPECKER_OPEN=true
+      - WOODPECKER_ORGS=${WOODPECKER_ORGS}
+      - WOODPECKER_ADMIN=${WOODPECKER_ADMIN}
       - WOODPECKER_GITHUB=true
       - WOODPECKER_GITHUB_CLIENT=${WOODPECKER_GITHUB_CLIENT}
       - WOODPECKER_GITHUB_SECRET=${WOODPECKER_GITHUB_SECRET}
