@@ -25,8 +25,8 @@ services:
     deploy:
       labels:
         - traefik.enable=true
+        - traefik.docker.network=frontend
 
-        # web server
         - traefik.http.services.woodpecker-service.loadbalancer.server.port=8000
 
         - traefik.http.routers.woodpecker-secure.rule=Host(`${COMPOSE_SERVER_DOMAIN}`)
