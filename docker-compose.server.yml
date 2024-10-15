@@ -29,13 +29,13 @@ services:
         # web server
         - traefik.http.services.woodpecker-service.loadbalancer.server.port=8000
 
-        - traefik.http.routers.woodpecker-secure.rule=Host(`${COMPOSE_SERVER_DOMAIN}`)
+        - traefik.http.routers.woodpecker-secure.rule=Host(`${SERVER_COMPOSE_DOMAIN}`)
         - traefik.http.routers.woodpecker-secure.tls=true
         - traefik.http.routers.woodpecker-secure.tls.certresolver=letsencrypt
         - traefik.http.routers.woodpecker-secure.entrypoints=websecure
         - traefik.http.routers.woodpecker-secure.service=woodpecker-service
 
-        - traefik.http.routers.woodpecker.rule=Host(`${COMPOSE_SERVER_DOMAIN}`)
+        - traefik.http.routers.woodpecker.rule=Host(`${SERVER_COMPOSE_DOMAIN}`)
         - traefik.http.routers.woodpecker.entrypoints=web
         - traefik.http.routers.woodpecker.service=woodpecker-service
 
