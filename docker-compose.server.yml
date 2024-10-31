@@ -45,7 +45,7 @@ services:
     command: agent
     restart: always
     depends_on:
-      - woodpecker-server
+      - woodpecker
     volumes:
       - .docker/data/agent:/etc/woodpecker
       - /var/run/docker.sock:/var/run/docker.sock
