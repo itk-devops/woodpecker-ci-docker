@@ -16,18 +16,26 @@ services:
     volumes:
       - .:/app
 
-  woodpecker-server:
+  woodpecker:
     image: woodpeckerci/woodpecker-server:latest
     networks:
       - app
       - frontend
     ports:
       - "8000"
+      - "9000"
     volumes:
-      - woodpecker-server-data:/var/lib/woodpecker/
+      - .docker/data/server:/var/lib/woodpecker/
+    env_file:
+      - path: .env
+        required: true
+      - path: .env.local
+        required: false
     environment:
-      - WOODPECKER_OPEN=false
       - WOODPECKER_HOST=${WOODPECKER_HOST}
+      - WOODPECKER_OPEN=true
+      - WOODPECKER_ORGS=${WOODPECKER_ORGS}
+      - WOODPECKER_ADMIN=${WOODPECKER_ADMIN}
       - WOODPECKER_GITHUB=true
       - WOODPECKER_GITHUB_CLIENT=${WOODPECKER_GITHUB_CLIENT}
       - WOODPECKER_GITHUB_SECRET=${WOODPECKER_GITHUB_SECRET}
@@ -35,43 +43,29 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=frontend
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}.rule=Host(`${COMPOSE_DOMAIN}`)
+      - traefik.http.services.${COMPOSE_PROJECT_NAME}.loadbalancer.server.port=8000
+  #      HTTPS config - uncomment to enable redirect from :80 to :443
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}.middlewares=redirect-to-https
+      - traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
 
-      # web server
-      - traefik.http.services.woodpecker-service.loadbalancer.server.port=8000
-
-      - traefik.http.routers.woodpecker-secure.rule=Host(`woodpecker.local.itkdev.dk`)
-      - traefik.http.routers.woodpecker-secure.tls=true
-      #- traefik.http.routers.woodpecker-secure.tls.certresolver=letsencrypt
-      #- traefik.http.routers.woodpecker-secure.entrypoints=web-secure
-      - traefik.http.routers.woodpecker-secure.service=woodpecker-service
-
-      - traefik.http.routers.woodpecker.rule=Host(`woodpecker.local.itkdev.dk`)
-      - traefik.http.routers.woodpecker.entrypoints=web
-      - traefik.http.routers.woodpecker.service=woodpecker-service
-
-      - traefik.http.middlewares.woodpecker-redirect.redirectscheme.scheme=https
-      - traefik.http.middlewares.woodpecker-redirect.redirectscheme.permanent=true
-      - traefik.http.routers.woodpecker.middlewares=woodpecker-redirect@docker
-
-  woodpecker-agent-1: &woodpecker-agent-definition
+  woodpecker-agent:
     image: woodpeckerci/woodpecker-agent:latest
+    deploy:
+      mode: replicated
+      replicas: 4
     networks:
       - app
     command: agent
-    restart: always
     depends_on:
-      - woodpecker-server
+      - woodpecker
     volumes:
-      - woodpecker-agent-config:/etc/woodpecker
       - /var/run/docker.sock:/var/run/docker.sock
+    env_file:
+      - path: .env
+        required: true
+      - path: .env.local
+        required: false
     environment:
-      - WOODPECKER_SERVER=woodpecker-server:9000
+      - WOODPECKER_SERVER=woodpecker:9000
       - WOODPECKER_AGENT_SECRET=${WOODPECKER_AGENT_SECRET}
-
-  woodpecker-agent-2: *woodpecker-agent-definition
-  woodpecker-agent-3: *woodpecker-agent-definition
-  woodpecker-agent-4: *woodpecker-agent-definition
-
-volumes:
-  woodpecker-server-data:
-  woodpecker-agent-config:
