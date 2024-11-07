@@ -24,6 +24,8 @@ services:
       - WOODPECKER_GITHUB_CLIENT=${WOODPECKER_GITHUB_CLIENT}
       - WOODPECKER_GITHUB_SECRET=${WOODPECKER_GITHUB_SECRET}
       - WOODPECKER_AGENT_SECRET=${WOODPECKER_AGENT_SECRET}
+      - WOODPECKER_DATABASE_DRIVER=mysql
+      - WOODPECKER_DATABASE_DATASOURCE=${WOODPECKER_DATABASE_DATASOURCE}
     labels:
       - traefik.enable=true
       - traefik.docker.network=frontend
@@ -45,9 +47,8 @@ services:
     command: agent
     restart: always
     depends_on:
-      - woodpecker-server
+      - woodpecker
     volumes:
-      - .docker/data/agent:/etc/woodpecker
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
       - WOODPECKER_SERVER=woodpecker:9000
