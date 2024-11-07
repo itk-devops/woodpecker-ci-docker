@@ -6,15 +6,17 @@ networks:
     internal: false
 
 services:
-  ubuntu:
-    build:
-      context: .docker/dockerfiles/ubuntu/
+  mariadb:
+    image: itkdev/mariadb:latest
     networks:
       - app
     ports:
-      - '22'
-    volumes:
-      - .:/app
+      - '3306'
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_USER=db
+      - MYSQL_PASSWORD=db
+      - MYSQL_DATABASE=db
 
   woodpecker:
     image: woodpeckerci/woodpecker-server:latest
@@ -40,6 +42,8 @@ services:
       - WOODPECKER_GITHUB_CLIENT=${WOODPECKER_GITHUB_CLIENT}
       - WOODPECKER_GITHUB_SECRET=${WOODPECKER_GITHUB_SECRET}
       - WOODPECKER_AGENT_SECRET=${WOODPECKER_AGENT_SECRET}
+      - WOODPECKER_DATABASE_DRIVER=mysql
+      - WOODPECKER_DATABASE_DATASOURCE=${WOODPECKER_DATABASE_DATASOURCE}
     labels:
       - traefik.enable=true
       - traefik.docker.network=frontend
