@@ -28,6 +28,9 @@ services:
       - WOODPECKER_AGENT_SECRET=${WOODPECKER_AGENT_SECRET}
       - WOODPECKER_DATABASE_DRIVER=mysql
       - WOODPECKER_DATABASE_DATASOURCE=${WOODPECKER_DATABASE_DATASOURCE}
+      - WOODPECKER_DEFAULT_CANCEL_PREVIOUS_PIPELINE_EVENTS=${WOODPECKER_DEFAULT_CANCEL_PREVIOUS_PIPELINE_EVENTS}
+      - WOODPECKER_PROMETHEUS_AUTH_TOKEN=${WOODPECKER_PROMETHEUS_AUTH_TOKEN}
+      - WOODPECKER_METRICS_SERVER_ADDR=${WOODPECKER_METRICS_SERVER_ADDR}
     labels:
       - traefik.enable=true
       - traefik.docker.network=frontend
@@ -49,7 +52,8 @@ services:
     command: agent
     restart: always
     depends_on:
-      - woodpecker
+      woodpecker:
+        condition: service_healthy
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:

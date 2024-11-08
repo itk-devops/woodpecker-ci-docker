@@ -12,6 +12,12 @@ services:
       - app
     ports:
       - '3306'
+    healthcheck:
+      test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 3
     environment:
       - MYSQL_ROOT_PASSWORD=password
       - MYSQL_USER=db
@@ -23,8 +29,12 @@ services:
     networks:
       - app
       - frontend
+    depends_on:
+      mariadb:
+        condition: service_healthy
     ports:
       - "8000"
+      - "8100"
       - "9000"
     volumes:
       - .docker/data/server:/var/lib/woodpecker/
@@ -44,6 +54,9 @@ services:
       - WOODPECKER_AGENT_SECRET=${WOODPECKER_AGENT_SECRET}
       - WOODPECKER_DATABASE_DRIVER=mysql
       - WOODPECKER_DATABASE_DATASOURCE=${WOODPECKER_DATABASE_DATASOURCE}
+      - WOODPECKER_DEFAULT_CANCEL_PREVIOUS_PIPELINE_EVENTS=${WOODPECKER_DEFAULT_CANCEL_PREVIOUS_PIPELINE_EVENTS}
+      - WOODPECKER_PROMETHEUS_AUTH_TOKEN=${WOODPECKER_PROMETHEUS_AUTH_TOKEN}
+      - WOODPECKER_METRICS_SERVER_ADDR=${WOODPECKER_METRICS_SERVER_ADDR}
     labels:
       - traefik.enable=true
       - traefik.docker.network=frontend
@@ -62,7 +75,8 @@ services:
       - app
     command: agent
     depends_on:
-      - woodpecker
+      woodpecker:
+        condition: service_healthy
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     env_file:
