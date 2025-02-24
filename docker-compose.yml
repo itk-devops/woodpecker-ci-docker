@@ -59,11 +59,21 @@ services:
       - WOODPECKER_METRICS_SERVER_ADDR=${WOODPECKER_METRICS_SERVER_ADDR}
     labels:
       - traefik.enable=true
+
+      # web server
       - traefik.docker.network=frontend
       - traefik.http.routers.${COMPOSE_PROJECT_NAME}.rule=Host(`${COMPOSE_DOMAIN}`)
       - traefik.http.services.${COMPOSE_PROJECT_NAME}.loadbalancer.server.port=8000
-  #      HTTPS config - uncomment to enable redirect from :80 to :443
+  #     HTTPS config - uncomment to enable redirect from :80 to :443
       - traefik.http.routers.${COMPOSE_PROJECT_NAME}.middlewares=redirect-to-https
+      - traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
+
+      # web server
+      - traefik.docker.network=frontend
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}.rule=Host(`grpc-${COMPOSE_DOMAIN}`)
+      - traefik.http.services.${COMPOSE_PROJECT_NAME}.loadbalancer.server.port=9000
+  #     HTTPS config - uncomment to enable redirect from :80 to :443
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}-grpc.middlewares=redirect-to-https
       - traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
 
   woodpecker-agent:
@@ -87,3 +97,4 @@ services:
     environment:
       - WOODPECKER_SERVER=woodpecker:9000
       - WOODPECKER_AGENT_SECRET=${WOODPECKER_AGENT_SECRET}
+      - WOODPECKER_AGENT_LABELS=${WOODPECKER_AGENT_LABELS}
