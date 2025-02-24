@@ -5,12 +5,9 @@ networks:
     driver: bridge
     internal: false
 
-include:
-  - docker-compose.agent.yml
-
 services:
   woodpecker:
-    image: woodpeckerci/woodpecker-server:v3
+    image: woodpeckerci/woodpecker-server:${COMPOSE_TAG}
     networks:
       - app
       - frontend
