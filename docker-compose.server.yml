@@ -5,9 +5,12 @@ networks:
     driver: bridge
     internal: false
 
+include:
+  - docker-compose.agent.yml
+
 services:
   woodpecker:
-    image: woodpeckerci/woodpecker-server:latest
+    image: woodpeckerci/woodpecker-server:v3
     networks:
       - app
       - frontend
@@ -55,22 +58,3 @@ services:
       - traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
       - traefik.http.routers.${COMPOSE_PROJECT_NAME}-grpc.rule=Host(`grpc-${COMPOSE_SERVER_DOMAIN}`)
       - traefik.http.routers.${COMPOSE_PROJECT_NAME}-grpc.entrypoints=websecure
-
-  woodpecker-agent:
-    image: woodpeckerci/woodpecker-agent:latest
-    deploy:
-      mode: replicated
-      replicas: 4
-    networks:
-      - app
-    command: agent
-    restart: always
-    depends_on:
-      woodpecker:
-        condition: service_healthy
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    environment:
-      - WOODPECKER_SERVER=woodpecker:9000
-      - WOODPECKER_AGENT_SECRET=${WOODPECKER_AGENT_SECRET}
-      - WOODPECKER_AGENT_LABELS=${WOODPECKER_AGENT_LABELS}
