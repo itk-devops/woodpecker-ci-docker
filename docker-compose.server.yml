@@ -7,7 +7,7 @@ networks:
 
 services:
   woodpecker:
-    image: woodpeckerci/woodpecker-server:latest
+    image: woodpeckerci/woodpecker-server:${COMPOSE_TAG}
     networks:
       - app
       - frontend
@@ -31,6 +31,8 @@ services:
       - WOODPECKER_DEFAULT_CANCEL_PREVIOUS_PIPELINE_EVENTS=${WOODPECKER_DEFAULT_CANCEL_PREVIOUS_PIPELINE_EVENTS}
       - WOODPECKER_PROMETHEUS_AUTH_TOKEN=${WOODPECKER_PROMETHEUS_AUTH_TOKEN}
       - WOODPECKER_METRICS_SERVER_ADDR=${WOODPECKER_METRICS_SERVER_ADDR}
+      - WOODPECKER_GRPC_SECURE=true
+      - WOODPECKER_GRPC_VERIFY=true
     labels:
       - traefik.enable=true
 
@@ -55,22 +57,3 @@ services:
       - traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
       - traefik.http.routers.${COMPOSE_PROJECT_NAME}-grpc.rule=Host(`grpc-${COMPOSE_SERVER_DOMAIN}`)
       - traefik.http.routers.${COMPOSE_PROJECT_NAME}-grpc.entrypoints=websecure
-
-  woodpecker-agent:
-    image: woodpeckerci/woodpecker-agent:latest
-    deploy:
-      mode: replicated
-      replicas: 4
-    networks:
-      - app
-    command: agent
-    restart: always
-    depends_on:
-      woodpecker:
-        condition: service_healthy
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    environment:
-      - WOODPECKER_SERVER=woodpecker:9000
-      - WOODPECKER_AGENT_SECRET=${WOODPECKER_AGENT_SECRET}
-      - WOODPECKER_AGENT_LABELS=${WOODPECKER_AGENT_LABELS}

@@ -1,0 +1,46 @@
+networks:
+  frontend:
+    external: true
+  app:
+    driver: bridge
+    internal: false
+
+services:
+  woodpecker-agent-1:
+    image: woodpeckerci/woodpecker-agent:${COMPOSE_TAG}
+    networks:
+      - app
+      - frontend
+    command: agent
+    volumes:
+      - .docker/data/agent/1:/etc/woodpecker
+      - /var/run/docker.sock:/var/run/docker.sock
+    env_file:
+      - path: .env
+        required: true
+      - path: .env.local
+        required: false
+    environment:
+      - WOODPECKER_SERVER=${WOODPECKER_SERVER}
+      - WOODPECKER_AGENT_SECRET=${WOODPECKER_AGENT_SECRET}
+      - WOODPECKER_AGENT_LABELS=${WOODPECKER_AGENT_LABELS}
+      - WOODPECKER_GRPC_SECURE=true
+      - WOODPECKER_GRPC_VERIFY=true
+
+  woodpecker-agent-2:
+    extends:
+      service: woodpecker-agent-1
+    volumes:
+      - .docker/data/agent/2:/etc/woodpecker
+
+  woodpecker-agent-3:
+    extends:
+      service: woodpecker-agent-1
+    volumes:
+      - .docker/data/agent/3:/etc/woodpecker
+
+  woodpecker-agent-4:
+    extends:
+      service: woodpecker-agent-1
+    volumes:
+      - .docker/data/agent/4:/etc/woodpecker
