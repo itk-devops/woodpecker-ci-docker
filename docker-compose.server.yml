@@ -7,10 +7,12 @@ networks:
 
 services:
   woodpecker:
-    image: woodpeckerci/woodpecker-server:latest
+    image: woodpeckerci/woodpecker-server:${COMPOSE_SERVER_TAG}
     networks:
       - app
       - frontend
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports:
       - 8000
     volumes:
@@ -26,8 +28,15 @@ services:
       - WOODPECKER_AGENT_SECRET=${WOODPECKER_AGENT_SECRET}
       - WOODPECKER_DATABASE_DRIVER=mysql
       - WOODPECKER_DATABASE_DATASOURCE=${WOODPECKER_DATABASE_DATASOURCE}
+      - WOODPECKER_DEFAULT_CANCEL_PREVIOUS_PIPELINE_EVENTS=${WOODPECKER_DEFAULT_CANCEL_PREVIOUS_PIPELINE_EVENTS}
+      - WOODPECKER_PROMETHEUS_AUTH_TOKEN=${WOODPECKER_PROMETHEUS_AUTH_TOKEN}
+      - WOODPECKER_METRICS_SERVER_ADDR=${WOODPECKER_METRICS_SERVER_ADDR}
+      - WOODPECKER_GRPC_SECURE=true
+      - WOODPECKER_GRPC_VERIFY=true
     labels:
       - traefik.enable=true
+
+      # web server
       - traefik.docker.network=frontend
       - traefik.http.services.${COMPOSE_PROJECT_NAME}-service.loadbalancer.server.port=8000
       - traefik.http.routers.${COMPOSE_PROJECT_NAME}-http.rule=Host(`${COMPOSE_SERVER_DOMAIN}`)
@@ -37,19 +46,14 @@ services:
       - traefik.http.routers.${COMPOSE_PROJECT_NAME}.rule=Host(`${COMPOSE_SERVER_DOMAIN}`)
       - traefik.http.routers.${COMPOSE_PROJECT_NAME}.entrypoints=websecure
 
-  woodpecker-agent:
-    image: woodpeckerci/woodpecker-agent:latest
-    deploy:
-      mode: replicated
-      replicas: 4
-    networks:
-      - app
-    command: agent
-    restart: always
-    depends_on:
-      - woodpecker
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    environment:
-      - WOODPECKER_SERVER=woodpecker:9000
-      - WOODPECKER_AGENT_SECRET=${WOODPECKER_AGENT_SECRET}
+      # gRPC service
+      - traefik.docker.network=frontend
+      - traefik.http.services.${COMPOSE_PROJECT_NAME}-grpc-service.loadbalancer.server.port=9000
+      - traefik.http.services.${COMPOSE_PROJECT_NAME}-grpc-service.loadbalancer.server.scheme=h2c
+
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}-grpc-http.rule=Host(`grpc-${COMPOSE_SERVER_DOMAIN}`)
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}-grpc-http.entrypoints=web
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}-grpc-http.middlewares=redirect-to-https
+      - traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}-grpc.rule=Host(`grpc-${COMPOSE_SERVER_DOMAIN}`)
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}-grpc.entrypoints=websecure

@@ -5,6 +5,9 @@ networks:
     driver: bridge
     internal: false
 
+include:
+  - docker-compose.agent.yml
+
 services:
   mariadb:
     image: itkdev/mariadb:latest
@@ -12,6 +15,12 @@ services:
       - app
     ports:
       - '3306'
+    healthcheck:
+      test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 3
     environment:
       - MYSQL_ROOT_PASSWORD=password
       - MYSQL_USER=db
@@ -19,12 +28,16 @@ services:
       - MYSQL_DATABASE=db
 
   woodpecker:
-    image: woodpeckerci/woodpecker-server:latest
+    image: woodpeckerci/woodpecker-server:${COMPOSE_SERVER_TAG}
     networks:
       - app
       - frontend
+    depends_on:
+      mariadb:
+        condition: service_healthy
     ports:
       - "8000"
+      - "8100"
       - "9000"
     volumes:
       - .docker/data/server:/var/lib/woodpecker/
@@ -44,32 +57,24 @@ services:
       - WOODPECKER_AGENT_SECRET=${WOODPECKER_AGENT_SECRET}
       - WOODPECKER_DATABASE_DRIVER=mysql
       - WOODPECKER_DATABASE_DATASOURCE=${WOODPECKER_DATABASE_DATASOURCE}
+      - WOODPECKER_DEFAULT_CANCEL_PREVIOUS_PIPELINE_EVENTS=${WOODPECKER_DEFAULT_CANCEL_PREVIOUS_PIPELINE_EVENTS}
+      - WOODPECKER_PROMETHEUS_AUTH_TOKEN=${WOODPECKER_PROMETHEUS_AUTH_TOKEN}
+      - WOODPECKER_METRICS_SERVER_ADDR=${WOODPECKER_METRICS_SERVER_ADDR}
     labels:
       - traefik.enable=true
+
+      # web server
       - traefik.docker.network=frontend
       - traefik.http.routers.${COMPOSE_PROJECT_NAME}.rule=Host(`${COMPOSE_DOMAIN}`)
       - traefik.http.services.${COMPOSE_PROJECT_NAME}.loadbalancer.server.port=8000
-  #      HTTPS config - uncomment to enable redirect from :80 to :443
+  #     HTTPS config - uncomment to enable redirect from :80 to :443
       - traefik.http.routers.${COMPOSE_PROJECT_NAME}.middlewares=redirect-to-https
       - traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
 
-  woodpecker-agent:
-    image: woodpeckerci/woodpecker-agent:latest
-    deploy:
-      mode: replicated
-      replicas: 4
-    networks:
-      - app
-    command: agent
-    depends_on:
-      - woodpecker
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    env_file:
-      - path: .env
-        required: true
-      - path: .env.local
-        required: false
-    environment:
-      - WOODPECKER_SERVER=woodpecker:9000
-      - WOODPECKER_AGENT_SECRET=${WOODPECKER_AGENT_SECRET}
+      # web server
+      - traefik.docker.network=frontend
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}.rule=Host(`grpc-${COMPOSE_DOMAIN}`)
+      - traefik.http.services.${COMPOSE_PROJECT_NAME}.loadbalancer.server.port=9000
+  #     HTTPS config - uncomment to enable redirect from :80 to :443
+      - traefik.http.routers.${COMPOSE_PROJECT_NAME}-grpc.middlewares=redirect-to-https
+      - traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https
