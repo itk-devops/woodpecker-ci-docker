@@ -7,7 +7,7 @@ networks:
 
 services:
   woodpecker-agent-1:
-    image: woodpeckerci/woodpecker-agent:${COMPOSE_TAG}
+    image: woodpeckerci/woodpecker-agent:${COMPOSE_AGENT_TAG}
     networks:
       - app
       - frontend

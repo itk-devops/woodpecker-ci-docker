@@ -7,7 +7,7 @@ networks:
 
 services:
   woodpecker:
-    image: woodpeckerci/woodpecker-server:${COMPOSE_TAG}
+    image: woodpeckerci/woodpecker-server:${COMPOSE_SERVER_TAG}
     networks:
       - app
       - frontend
