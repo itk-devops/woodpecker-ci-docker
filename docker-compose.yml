@@ -28,7 +28,7 @@ services:
       - MYSQL_DATABASE=db
 
   woodpecker:
-    image: woodpeckerci/woodpecker-server:${COMPOSE_TAG}
+    image: woodpeckerci/woodpecker-server:${COMPOSE_SERVER_TAG}
     networks:
       - app
       - frontend
