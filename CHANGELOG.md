@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.1.0] - 2025-02-24
+## [1.1.0] - 2025-02-25
 
 - Split agent config in separate compose file to enable running agents only
 - Expose gRPC over HTTPS to enable running agents on a different provider (zone)
