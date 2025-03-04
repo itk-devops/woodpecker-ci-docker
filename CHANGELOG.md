@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.1] - 2025-03-04
+
+- Remove redundant env section from agent compose file
+- Set default empty value for ext config endpoint
+
 ## [1.1.0] - 2025-02-25
 
 - Split agent config in separate compose file to enable running agents only
