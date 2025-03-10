@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.2] - 2025-03-10
+
+- Fix traefik labels for exposing agent endpoint 
+
 ## [1.1.1] - 2025-03-04
 
 - Remove redundant env section from agent compose file
