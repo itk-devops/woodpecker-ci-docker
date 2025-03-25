@@ -8,6 +8,7 @@ networks:
 services:
   woodpecker:
     image: woodpeckerci/woodpecker-server:${COMPOSE_SERVER_TAG}
+    restart: always
     networks:
       - app
       - frontend

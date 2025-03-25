@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.3] - 2025-03-25
+
+- Add missing `restart` for server and agents
+- Add missing `depends_on` for agents with override for standalone agent hosting
+
 ## [1.1.2] - 2025-03-10
 
 - Fix traefik labels for exposing agent endpoint 
