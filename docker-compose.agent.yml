@@ -11,6 +11,9 @@ services:
     networks:
       - app
       - frontend
+    depends_on:
+      woodpecker:
+        condition: service_healthy
     command: agent
     volumes:
       - .docker/data/agent/1:/etc/woodpecker
