@@ -15,6 +15,7 @@ services:
       woodpecker:
         condition: service_healthy
     command: agent
+    restart: always
     volumes:
       - .docker/data/agent/1:/etc/woodpecker
       - /var/run/docker.sock:/var/run/docker.sock
