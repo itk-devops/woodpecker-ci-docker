@@ -1,0 +1,3 @@
+services:
+  woodpecker-agent-1:
+    depends_on: !reset null
