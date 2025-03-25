@@ -1,3 +1,12 @@
 services:
   woodpecker-agent-1:
-    depends_on: !reset null
+    depends_on: !reset []
+
+  woodpecker-agent-2:
+    depends_on: !reset []
+
+  woodpecker-agent-3:
+    depends_on: !reset []
+
+  woodpecker-agent-4:
+    depends_on: !reset []
